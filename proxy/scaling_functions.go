@@ -18,7 +18,7 @@ func ScaleToFit(fitWidth, fitHeight int) ScalingFunction {
 
 func ScaleToFill(fillWidth, fillHeight int) ScalingFunction {
 	return func(width, height int) (int, int) {
-		if width <= fillWidth && height <= fillHeight {
+		if width <= fillWidth || height <= fillHeight {
 			return width, height
 		}
 		xScale := float64(fillWidth) / float64(width)
