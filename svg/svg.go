@@ -20,13 +20,13 @@ type rsvgError struct {
 }
 
 func (e rsvgError) Error() string {
-	return C.GoString(e.err.message)
+	return C.GoString((*C.char)(e.err.message))
 }
 
 func New(data []byte) (*SVG, error) {
 	var err *C.GError
 	svg := &SVG{
-		handle: C.rsvg_handle_new_from_data((*C.uchar)(C.CBytes(data)), C.ulong(len(data)), &err),
+		handle: C.rsvg_handle_new_from_data((*C.guint8)(C.CBytes(data)), C.gsize(len(data)), &err),
 	}
 	if err != nil {
 		return nil, &rsvgError{

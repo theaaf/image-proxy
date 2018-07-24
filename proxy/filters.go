@@ -13,7 +13,7 @@ import (
 
 	"github.com/nfnt/resize"
 
-	"github.aaf.cloud/platform/imp/svg"
+	"github.aaf.cloud/platform/image-proxy/svg"
 )
 
 type Filter func(*Response) (*Response, *FilterError)
@@ -80,13 +80,32 @@ func ContentTypeFilter(in *Response) (*Response, *FilterError) {
 	contentType, _, _ := mime.ParseMediaType(in.Header.Get("Content-Type"))
 	switch contentType {
 	case "image/jpeg", "image/png", "image/svg+xml":
-		return in, nil
+		header := http.Header{}
+		for k, v := range in.Header {
+			header[k] = v
+		}
+		// Make absolutely sure there's only one content-type header so nothing downstream
+		// interprets the content type differently.
+		header.Set("Content-Type", in.Header.Get("Content-Type"))
+		return &Response{
+			Header: header,
+			Body:   in.Body,
+		}, nil
 	}
 
 	return nil, &FilterError{
 		Error:      fmt.Errorf("forbidden content-type"),
 		StatusCode: http.StatusForbidden,
 	}
+}
+
+var forwardedHeaders = []string{
+	"Cache-Control",
+	"Content-Language",
+	"Content-Type",
+	"Expires",
+	"Last-Modified",
+	"Pragma",
 }
 
 func HeaderFilter(in *Response) (*Response, *FilterError) {
@@ -96,7 +115,9 @@ func HeaderFilter(in *Response) (*Response, *FilterError) {
 	}
 	for _, header := range forwardedHeaders {
 		canonical := textproto.CanonicalMIMEHeaderKey(header)
-		out.Header[canonical] = in.Header[canonical]
+		if v, ok := in.Header[canonical]; ok {
+			out.Header[canonical] = v
+		}
 	}
 	out.Header.Set("Content-Security-Policy", "default-src 'none'; style-src 'self' 'unsafe-inline'")
 	out.Header.Set("X-Content-Type-Options", "nosniff")

@@ -73,15 +73,6 @@ func NewRequestFromURL(url *url.URL) (*Request, error) {
 	return r, nil
 }
 
-var forwardedHeaders = []string{
-	"Cache-Control",
-	"Content-Language",
-	"Content-Type",
-	"Expires",
-	"Last-Modified",
-	"Pragma",
-}
-
 type Response struct {
 	Header http.Header
 	Body   io.Reader

@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.aaf.cloud/platform/imp/proxy"
+	"github.aaf.cloud/platform/image-proxy/proxy"
 )
 
 func httpHandler(w http.ResponseWriter, r *http.Request) {

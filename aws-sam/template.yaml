@@ -1,0 +1,60 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: github.aaf.cloud/platform/image-proxy
+Transform: AWS::Serverless-2016-10-31
+Globals:
+  Api:
+    BinaryMediaTypes:
+      - '*~1*'
+    EndpointConfiguration: REGIONAL
+Resources:
+  Distribution:
+    Type: AWS::CloudFront::Distribution
+    Properties:
+      DistributionConfig:
+        DefaultCacheBehavior:
+          ForwardedValues:
+            QueryString: true
+          TargetOriginId: proxy
+          ViewerProtocolPolicy: redirect-to-https
+        Enabled: true
+        HttpVersion: http2
+        Origins:
+          - CustomOriginConfig:
+              OriginProtocolPolicy: https-only
+            DomainName: !Sub ${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com
+            Id: proxy
+            OriginPath: /Prod
+  ImageProxyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: main
+      Runtime: go1.x
+      CodeUri: ./build
+      Environment:
+        Variables:
+          LD_LIBRARY_PATH: ''
+      Events:
+        HttpHandler:
+          Type: Api
+          Properties:
+            Path: /{proxy+}
+            Method: GET
+        KeepWarm:
+          Type: Schedule
+          Properties:
+            Schedule: rate(1 minute)
+      MemorySize: 1024
+      Role: !GetAtt ImageProxyFunctionRole.Arn
+      Timeout: 30
+  ImageProxyFunctionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
