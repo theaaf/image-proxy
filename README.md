@@ -14,6 +14,14 @@ Options can be specified via query parameters:
 * `fit=[WIDTH]x[HEIGHT]` - Scales down the source image to fit entirely within the given bounds.
 * `fill=[WIDTH]x[HEIGHT]` - Scales down the source image to entirely fill the given bounds.
 
+# Configuration
+
+You can specify a whitelist for allowed hosts via environment variable:
+
+```
+IMAGE_PROXY_HOSTS=foo.example.com,bar.example.com,*.baz.example.com
+```
+
 # Development
 
 * Install librsvg. On macOS, you can `brew install librsvg`.
