@@ -19,7 +19,7 @@ Options can be specified via query parameters:
 You can specify a whitelist for allowed hosts via environment variable:
 
 ```
-IMAGE_PROXY_HOSTS=foo.example.com,bar.example.com,*.baz.example.com
+IMAGE_PROXY_ALLOWED_HOSTS=foo.example.com,bar.example.com,*.baz.example.com
 ```
 
 # Development
