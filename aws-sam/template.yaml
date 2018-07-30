@@ -6,6 +6,9 @@ Globals:
     BinaryMediaTypes:
       - '*~1*'
     EndpointConfiguration: REGIONAL
+Parameters:
+  AllowedHosts:
+    Type: CommaDelimitedList
 Resources:
   Distribution:
     Type: AWS::CloudFront::Distribution
@@ -33,6 +36,7 @@ Resources:
       Environment:
         Variables:
           LD_LIBRARY_PATH: ''
+          IMAGE_PROXY_ALLOWED_HOSTS: !Join [',', !Ref AllowedHosts]
       Events:
         HttpHandler:
           Type: Api

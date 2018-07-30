@@ -5,6 +5,8 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -78,7 +80,37 @@ type Response struct {
 	Body   io.Reader
 }
 
-func Proxy(w http.ResponseWriter, r *Request) {
+type Configuration struct {
+	AllowedHosts []string
+}
+
+func (c *Configuration) LoadEnvironmentVariables() {
+	if hosts := os.Getenv("IMAGE_PROXY_ALLOWED_HOSTS"); hosts != "" {
+		c.AllowedHosts = strings.Split(hosts, ",")
+		for i, host := range c.AllowedHosts {
+			c.AllowedHosts[i] = strings.TrimSpace(host)
+		}
+	}
+}
+
+func (c *Configuration) AllowsHost(host string) bool {
+	if len(c.AllowedHosts) == 0 {
+		return true
+	}
+	for _, pattern := range c.AllowedHosts {
+		if ok, err := filepath.Match(pattern, host); err == nil && ok {
+			return true
+		}
+	}
+	return false
+}
+
+func Proxy(config *Configuration, w http.ResponseWriter, r *Request) {
+	if !config.AllowsHost(r.OriginURL.Host) {
+		http.Error(w, "forbidden host", http.StatusForbidden)
+		return
+	}
+
 	resp, err := http.Get(r.OriginURL.String())
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
