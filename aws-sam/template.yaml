@@ -9,11 +9,17 @@ Globals:
 Parameters:
   AllowedHosts:
     Type: CommaDelimitedList
+  CertificateARN:
+    Type: String
+  DomainName:
+    Type: String
 Resources:
   Distribution:
     Type: AWS::CloudFront::Distribution
     Properties:
       DistributionConfig:
+        Aliases:
+          - !Ref DomainName
         DefaultCacheBehavior:
           ForwardedValues:
             QueryString: true
@@ -27,6 +33,9 @@ Resources:
             DomainName: !Sub ${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com
             Id: proxy
             OriginPath: /Prod
+        ViewerCertificate:
+          AcmCertificateArn: !Ref CertificateARN
+          SslSupportMethod: sni-only
   ImageProxyFunction:
     Type: AWS::Serverless::Function
     Properties:
