@@ -119,7 +119,7 @@ func HeaderFilter(in *Response) (*Response, *FilterError) {
 			out.Header[canonical] = v
 		}
 	}
-	out.Header.Set("Content-Security-Policy", "default-src 'none'; style-src 'self' 'unsafe-inline'")
+	out.Header.Set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'")
 	out.Header.Set("X-Content-Type-Options", "nosniff")
 	return out, nil
 }
