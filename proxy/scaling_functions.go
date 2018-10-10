@@ -1,5 +1,52 @@
 package proxy
 
+import (
+	"github.com/disintegration/imaging"
+	"regexp"
+	"strings"
+)
+
+type CropType string
+
+const (
+	CropTypeCenter      CropType = "center"
+	CropTypeLeft        CropType = "left"
+	CropTypeRight       CropType = "right"
+	CropTypeTopLeft     CropType = "top_left"
+	CropTypeTop         CropType = "top"
+	CropTypeTopRight    CropType = "top_right"
+	CropTypeBottomLeft  CropType = "bottom_left"
+	CropTypeBottom      CropType = "bottom"
+	CropTypeBottomRight CropType = "bottom_right"
+)
+
+var cropTypeToAnchor = map[CropType]imaging.Anchor{
+	CropTypeCenter:      imaging.Center,
+	CropTypeLeft:        imaging.Left,
+	CropTypeRight:       imaging.Right,
+	CropTypeTopLeft:     imaging.TopLeft,
+	CropTypeTopRight:    imaging.TopRight,
+	CropTypeTop:         imaging.Top,
+	CropTypeBottom:      imaging.Bottom,
+	CropTypeBottomLeft:  imaging.BottomLeft,
+	CropTypeBottomRight: imaging.BottomRight,
+}
+
+func (c *CropType) Anchor() *imaging.Anchor {
+	if a, ok := cropTypeToAnchor[*c]; ok {
+		return &a
+	}
+	return nil
+}
+
+var camelCaseRegex = regexp.MustCompile("(^|_).")
+
+func (c *CropType) CamelCase() string {
+	return camelCaseRegex.ReplaceAllStringFunc(string(*c), func(s string) string {
+		return strings.TrimLeft(strings.ToUpper(s), "_")
+	})
+}
+
 type ScalingFunction func(width, height int) (int, int)
 
 func ScaleToFit(fitWidth, fitHeight int) ScalingFunction {

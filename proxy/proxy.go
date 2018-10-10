@@ -18,20 +18,23 @@ type Request struct {
 	Filters   []Filter
 }
 
-func parseDimensions(s string) (int, int, error) {
+func parseDimensions(s string) (*Dimensions, error) {
 	parts := strings.Split(s, "x")
 	if len(parts) != 2 {
-		return 0, 0, fmt.Errorf("invalid dimensions")
+		return nil, fmt.Errorf("invalid dimensions")
 	}
 	width, err := strconv.ParseInt(parts[0], 10, 0)
 	if err != nil {
-		return 0, 0, fmt.Errorf("invalid width")
+		return nil, fmt.Errorf("invalid width")
 	}
 	height, err := strconv.ParseInt(parts[1], 10, 0)
 	if err != nil {
-		return 0, 0, fmt.Errorf("invalid height")
+		return nil, fmt.Errorf("invalid height")
 	}
-	return int(width), int(height), nil
+	return &Dimensions{
+		Width:  int(width),
+		Height: int(height),
+	}, nil
 }
 
 // NewProxyRequestFromURL parses a URL for the origin url and additional options.
@@ -45,18 +48,32 @@ func NewRequestFromURL(url *url.URL) (*Request, error) {
 		return nil, err
 	}
 
+	scalingOptions := &ScalingOptions{}
+
+	if crop := url.Query().Get("crop"); crop != "" {
+		cropType := CropType(crop)
+
+		if _, ok := cropTypeToAnchor[cropType]; !ok {
+			return nil, fmt.Errorf("invalid crop: %v", crop)
+		} else {
+			scalingOptions.Crop = &cropType
+		}
+	}
+
 	var scalingFunction ScalingFunction
 	if fit := url.Query().Get("fit"); fit != "" {
-		if width, height, err := parseDimensions(fit); err != nil {
+		if dim, err := parseDimensions(fit); err != nil {
 			return nil, errors.Wrap(err, "invalid fit")
 		} else {
-			scalingFunction = ScaleToFit(width, height)
+			scalingFunction = ScaleToFit(dim.Width, dim.Height)
+			scalingOptions.Fit = dim
 		}
 	} else if fill := url.Query().Get("fill"); fill != "" {
-		if width, height, err := parseDimensions(fill); err != nil {
+		if dim, err := parseDimensions(fill); err != nil {
 			return nil, errors.Wrap(err, "invalid fill")
 		} else {
-			scalingFunction = ScaleToFill(width, height)
+			scalingFunction = ScaleToFill(dim.Width, dim.Height)
+			scalingOptions.Fill = dim
 		}
 	}
 
@@ -66,8 +83,8 @@ func NewRequestFromURL(url *url.URL) (*Request, error) {
 		r.Filters = append(r.Filters, RasterizeFilter(scalingFunction))
 	}
 
-	if scalingFunction != nil {
-		r.Filters = append(r.Filters, ScaleFilter(scalingFunction))
+	if scalingOptions.IsValid() {
+		r.Filters = append(r.Filters, ScalingFilter(scalingOptions))
 	}
 
 	r.Filters = append(r.Filters, HeaderFilter)

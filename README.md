@@ -13,6 +13,16 @@ Options can be specified via query parameters:
 * `rasterize` - If the source image is a vector image, the proxy will rasterize it.
 * `fit=[WIDTH]x[HEIGHT]` - Scales down the source image to fit entirely within the given bounds.
 * `fill=[WIDTH]x[HEIGHT]` - Scales down the source image to entirely fill the given bounds.
+    * In addition to the `fill` parameter, `crop` can be specified to return an image of the exact width and height, cropped by the parameter. Options are:
+       * `crop=center`
+       * `crop=left`
+       * `crop=right`
+       * `crop=top_left`
+       * `crop=top`
+       * `crop=top_right`
+       * `crop=bottom_left`
+       * `crop=bottom`
+       * `crop=bottom_right`
 
 # Configuration
 

@@ -11,9 +11,8 @@ import (
 	"net/http"
 	"net/textproto"
 
-	"github.com/nfnt/resize"
-
 	"github.aaf.cloud/platform/image-proxy/svg"
+	"github.com/disintegration/imaging"
 )
 
 type Filter func(*Response) (*Response, *FilterError)
@@ -124,10 +123,31 @@ func HeaderFilter(in *Response) (*Response, *FilterError) {
 	return out, nil
 }
 
-func ScaleFilter(scalingFunction ScalingFunction) Filter {
+type Dimensions struct {
+	Width  int
+	Height int
+}
+
+type ScalingOptions struct {
+	Crop *CropType
+	Fill *Dimensions
+	Fit  *Dimensions
+}
+
+func (o *ScalingOptions) IsValid() bool {
+	if o.Crop != nil {
+		// o.Crop cannot be provided by itself
+		return o.Fill != nil
+	}
+
+	return o.Fill != nil || o.Fit != nil
+}
+
+func ScalingFilter(opts *ScalingOptions) Filter {
 	return func(in *Response) (*Response, *FilterError) {
 		var img image.Image
 		var err error
+		var crop *imaging.Anchor
 
 		contentType, _, _ := mime.ParseMediaType(in.Header.Get("Content-Type"))
 		switch contentType {
@@ -151,9 +171,32 @@ func ScaleFilter(scalingFunction ScalingFunction) Filter {
 			}
 		}
 
-		width, height := scalingFunction(img.Bounds().Dx(), img.Bounds().Dy())
-		if width != img.Bounds().Dx() || height != img.Bounds().Dy() {
-			img = resize.Resize(uint(width), uint(height), img, resize.Bicubic)
+		switch {
+		case opts.Fit != nil:
+			img = imaging.Fit(img, opts.Fit.Width, opts.Fit.Height, imaging.CatmullRom)
+		case opts.Fill != nil:
+			if opts.Crop != nil {
+				if anchor := opts.Crop.Anchor(); anchor != nil {
+					crop = anchor
+				}
+			}
+
+			if crop != nil {
+				width := opts.Fill.Width
+				height := opts.Fill.Height
+
+				if img.Bounds().Dx() < width {
+					width = img.Bounds().Dx()
+				}
+				if img.Bounds().Dy() < height {
+					height = img.Bounds().Dy()
+				}
+
+				img = imaging.Fill(img, width, height, *crop, imaging.CatmullRom)
+			} else {
+				width, height := ScaleToFill(opts.Fill.Width, opts.Fill.Height)(img.Bounds().Dx(), img.Bounds().Dy())
+				img = imaging.Resize(img, width, height, imaging.CatmullRom)
+			}
 		}
 
 		buf := &bytes.Buffer{}
