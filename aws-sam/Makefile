@@ -29,3 +29,9 @@ build-environment-build:
 
 lambda-environment-build:
 	./build/main --help || (ldd ./build/main && exit 1)
+
+vendor: ../Gopkg.lock ../Gopkg.toml
+	dep ensure
+
+test: vendor build-environment-build
+	cd .. && CGO_CFLAGS='$(shell pkg-config --cflags librsvg-2.0)' CGO_LDFLAGS='$(shell pkg-config --libs librsvg-2.0) -Wl,-rpath,$$ORIGIN/lib' go test -cover -race -v ./...

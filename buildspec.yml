@@ -1,0 +1,19 @@
+version: 0.2
+phases:
+  pre_build:
+    commands:
+      - git show --name-status HEAD
+  build:
+    commands:
+      - echo runing tests...
+      - make test
+      - echo building lambda binary...
+      - make -C aws-sam build
+  post_build:
+    commands:
+      - echo packaging...
+      - aws cloudformation package --template-file ./aws-sam/template.yaml --s3-bucket $IMAGING_PROXY_PACKAGING_BUCKET --output-template-file ./template-packaged.yaml
+artifacts:
+  files:
+    - template-packaged.yaml
+  name: $(git rev-parse HEAD)
