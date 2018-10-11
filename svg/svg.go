@@ -36,13 +36,13 @@ func New(data []byte) (*SVG, error) {
 	return svg, nil
 }
 
-func (svg *SVG) Rasterize(scalingFunction func(width, height int) (int, int)) (image.Image, error) {
+func (svg *SVG) Rasterize(scalingFunction func(width, height int, allowUpscaling bool) (int, int)) (image.Image, error) {
 	var dimensions C.RsvgDimensionData
 	C.rsvg_handle_get_dimensions(svg.handle, &dimensions)
 
 	width, height := int(dimensions.width), int(dimensions.height)
 	if scalingFunction != nil {
-		width, height = scalingFunction(int(dimensions.width), int(dimensions.height))
+		width, height = scalingFunction(int(dimensions.width), int(dimensions.height), true)
 	}
 
 	surface := C.cairo_image_surface_create(C.CAIRO_FORMAT_ARGB32, C.int(width), C.int(height))
