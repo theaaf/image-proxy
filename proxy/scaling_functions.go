@@ -47,11 +47,11 @@ func (c *CropType) CamelCase() string {
 	})
 }
 
-type ScalingFunction func(width, height int) (int, int)
+type ScalingFunction func(width, height int, allowUpscaling bool) (int, int)
 
 func ScaleToFit(fitWidth, fitHeight int) ScalingFunction {
-	return func(width, height int) (int, int) {
-		if width <= fitWidth && height <= fitHeight {
+	return func(width, height int, allowUpscaling bool) (int, int) {
+		if (width <= fitWidth && height <= fitHeight) && !allowUpscaling {
 			return width, height
 		}
 		xScale := float64(fitWidth) / float64(width)
@@ -64,8 +64,8 @@ func ScaleToFit(fitWidth, fitHeight int) ScalingFunction {
 }
 
 func ScaleToFill(fillWidth, fillHeight int) ScalingFunction {
-	return func(width, height int) (int, int) {
-		if width <= fillWidth || height <= fillHeight {
+	return func(width, height int, allowUpscaling bool) (int, int) {
+		if (width <= fillWidth || height <= fillHeight) && !allowUpscaling {
 			return width, height
 		}
 		xScale := float64(fillWidth) / float64(width)

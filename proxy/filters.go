@@ -194,7 +194,7 @@ func ScalingFilter(opts *ScalingOptions) Filter {
 
 				img = imaging.Fill(img, width, height, *crop, imaging.CatmullRom)
 			} else {
-				width, height := ScaleToFill(opts.Fill.Width, opts.Fill.Height)(img.Bounds().Dx(), img.Bounds().Dy())
+				width, height := ScaleToFill(opts.Fill.Width, opts.Fill.Height)(img.Bounds().Dx(), img.Bounds().Dy(), false)
 				img = imaging.Resize(img, width, height, imaging.CatmullRom)
 			}
 		}
