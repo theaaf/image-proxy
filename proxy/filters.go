@@ -223,3 +223,55 @@ func ScalingFilter(opts *ScalingOptions) Filter {
 		}, nil
 	}
 }
+
+func JPEGFilter(quality int) Filter {
+	return func(in *Response) (*Response, *FilterError) {
+		var img image.Image
+		var err error
+
+		contentType, _, _ := mime.ParseMediaType(in.Header.Get("Content-Type"))
+		switch contentType {
+		case "image/svg+xml", "image/jpeg":
+			return in, nil
+		case "image/png":
+			img, err = png.Decode(in.Body)
+		default:
+			return nil, &FilterError{
+				Error:      fmt.Errorf("unsupported content-type"),
+				StatusCode: http.StatusForbidden,
+			}
+		}
+
+		if err != nil {
+			return nil, &FilterError{
+				Error:      fmt.Errorf("unable to decode image"),
+				StatusCode: http.StatusBadRequest,
+			}
+		}
+
+		buf := &bytes.Buffer{}
+
+		err = jpeg.Encode(buf, img, &jpeg.Options{
+			Quality: quality,
+		})
+
+		if err != nil {
+			return nil, &FilterError{
+				Error:      fmt.Errorf("unable to encode image"),
+				StatusCode: http.StatusBadRequest,
+			}
+		}
+
+		out := &Response{
+			Header: make(http.Header),
+			Body:   buf,
+		}
+
+		for k, v := range in.Header {
+			out.Header[k] = v
+		}
+		out.Header.Set("Content-Type", "image/jpeg")
+
+		return out, nil
+	}
+}

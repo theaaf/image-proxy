@@ -23,6 +23,8 @@ Options can be specified via query parameters:
        * `crop=bottom_left`
        * `crop=bottom`
        * `crop=bottom_right`
+* `format=jpg` - Converts raster images to JPEG. Vector images may still be retreived unless `rasterize` is also specified.
+    * `quality=[QUALITY]` can be used to control the quality of the JPEG encoding, where `[QUALITY]` is a number ranging from 1 to 100 (inclusive).
 
 # Configuration
 

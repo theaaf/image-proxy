@@ -87,6 +87,23 @@ func NewRequestFromURL(url *url.URL) (*Request, error) {
 		r.Filters = append(r.Filters, ScalingFilter(scalingOptions))
 	}
 
+	if format := url.Query().Get("format"); format != "" {
+		switch format {
+		case "jpeg", "jpg":
+			quality := 98
+			if param := url.Query().Get("quality"); param != "" {
+				n, err := strconv.ParseInt(param, 10, 64)
+				if err != nil || n < 1 || n > 100 {
+					return nil, fmt.Errorf("invalid quality")
+				}
+				quality = int(n)
+			}
+			r.Filters = append(r.Filters, JPEGFilter(quality))
+		default:
+			return nil, fmt.Errorf("invalid format")
+		}
+	}
+
 	r.Filters = append(r.Filters, HeaderFilter)
 
 	return r, nil
