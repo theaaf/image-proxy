@@ -7,7 +7,7 @@ build:
 build-environment-build:
 	rm -rf ./build
 	CGO_CFLAGS='$(shell pkg-config --cflags librsvg-2.0)' CGO_LDFLAGS='-L/usr/lib $(shell pkg-config --libs librsvg-2.0) -Wl,-rpath,$$ORIGIN/lib' go build -o ./build/main .
-	LD_LIBRARY_PATH=/usr/local/lib ./build/main --help
+	./build/main --help
 	mkdir ./build/lib
 	cp \
 		/usr/lib/*.so \
