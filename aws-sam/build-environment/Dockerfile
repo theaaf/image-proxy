@@ -70,6 +70,7 @@ RUN yum install -y golang
 ENV GOPATH=/go
 RUN mkdir -p /go/bin
 RUN wget -O - https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
+ENV PATH=$PATH:/go/bin
 
 RUN wget -O /tmp/patchelf.tar.gz https://github.com/NixOS/patchelf/archive/27ffe8ae871e7a186018d66020ef3f6162c12c69.tar.gz
 RUN cd /tmp && tar -xvf ./patchelf.tar.gz && cd patchelf-27ffe8ae871e7a186018d66020ef3f6162c12c69 && ./bootstrap.sh && ./configure && make install
