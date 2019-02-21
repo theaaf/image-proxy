@@ -1,0 +1,6 @@
+language: minimal
+services:
+  - docker
+script:
+  - make test
+  - make -C aws-sam build

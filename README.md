@@ -1,4 +1,4 @@
-# image-proxy
+# image-proxy [![Build Status](https://travis-ci.org/theaaf/image-proxy.svg?branch=master)](https://travis-ci.org/theaaf/image-proxy)
 
 Image proxy that can rasterize and resize images on-the-fly.
 
