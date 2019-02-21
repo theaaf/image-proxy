@@ -4,13 +4,13 @@ services:
     build:
       context: ./build-environment
     volumes:
-      - ../:/go/src/github.aaf.cloud/platform/image-proxy
-    working_dir: /go/src/github.aaf.cloud/platform/image-proxy/aws-sam
+      - ../:/go/src/github.com/theaaf/image-proxy
+    working_dir: /go/src/github.com/theaaf/image-proxy/aws-sam
   lambda-environment:
     entrypoint: []
     environment:
       LD_LIBRARY_PATH: ''
     image: lambci/lambda:go1.x
     volumes:
-      - ../:/go/src/github.aaf.cloud/platform/image-proxy
-    working_dir: /go/src/github.aaf.cloud/platform/image-proxy/aws-sam
+      - ../:/go/src/github.com/theaaf/image-proxy
+    working_dir: /go/src/github.com/theaaf/image-proxy/aws-sam

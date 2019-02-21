@@ -11,7 +11,7 @@ import (
 	"net/http"
 	"net/textproto"
 
-	"github.aaf.cloud/platform/image-proxy/svg"
+	"github.com/theaaf/image-proxy/svg"
 	"github.com/disintegration/imaging"
 )
 

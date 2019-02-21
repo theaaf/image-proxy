@@ -12,7 +12,7 @@ import (
 
 	"github.com/aws/aws-lambda-go/lambda"
 
-	"github.aaf.cloud/platform/image-proxy/proxy"
+	"github.com/theaaf/image-proxy/proxy"
 )
 
 type Request struct {
