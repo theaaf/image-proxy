@@ -2,6 +2,8 @@
 
 Image proxy that can rasterize and resize images on-the-fly.
 
+https://aaf.engineering/the-alliance-image-proxy/
+
 # API
 
 The origin URL is specified by removing the protocol and appending it to the image proxy's host. For example:
