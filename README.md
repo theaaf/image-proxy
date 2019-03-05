@@ -50,4 +50,8 @@ IMAGE_PROXY_ALLOWED_HOSTS=foo.example.com,bar.example.com,*.baz.example.com
 
 # Deployment
 
-The easiest way to deploy is via the AWS Serverless Application Model (SAM). See the aws-sam directory for details.
+The easiest way to deploy is via the AWS Serverless Application Model (SAM). You can deploy the proxy with a click or two from the AWS Serverless Application Repository:
+
+https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:712375302725:applications~image-proxy
+
+Alternatively, see the aws-sam directory for the do-it-yourself deployment.
