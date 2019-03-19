@@ -50,8 +50,8 @@ IMAGE_PROXY_ALLOWED_HOSTS=foo.example.com,bar.example.com,*.baz.example.com
 
 # Deployment
 
-The easiest way to deploy is via the AWS Serverless Application Model (SAM). You can deploy the proxy with a click or two from the AWS Serverless Application Repository:
+The easiest way to deploy is via AWS CloudFormation. If you have an AWS account, you can deploy the proxy by just clicking this button:
 
-https://serverlessrepo.aws.amazon.com/applications/arn:aws:serverlessrepo:us-east-1:712375302725:applications~image-proxy
+[![Launch](https://s3.amazonaws.com/cloudformation-examples/cloudformation-launch-stack.png)](https://console.aws.amazon.com/cloudformation/home#/stacks/new?stackName=image-proxy&templateURL=https://s3.amazonaws.com/aaf-platform-prod-image-proxy-packaging/template-packaged.yaml)
 
 Alternatively, see the aws-sam directory for the do-it-yourself deployment.
